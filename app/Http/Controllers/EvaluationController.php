@@ -6,9 +6,12 @@ use App\Http\Requests\StoreEvaluationRequest;
 use App\Http\Requests\UpdateEvaluationRequest;
 use App\Http\Resources\EvaluationResource;
 use App\Models\Evaluation;
+use App\Models\Instrument;
+use App\Models\Teacher;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class EvaluationController extends Controller
 {
@@ -31,18 +34,56 @@ class EvaluationController extends Controller
      */
     public function store(StoreEvaluationRequest $request)
     {
-        try {
-            return ($evaluation = Evaluation::create($request->all())) ?
-                response([
-                    'message' => 'Data Penilaian berhasil disimpan.',
-                    'result' => $evaluation
-                ], 201) : throw new Exception('Terjadi kesalahan server.');
-        } catch (Exception $exception){
-            return response([
-                'message' => $exception->getMessage(),
-                'result' => null
-            ], 422);
+//        try {
+//            return ($evaluation = Evaluation::create($request->all())) ?
+//                response([
+//                    'message' => 'Data Penilaian berhasil disimpan.',
+//                    'result' => $evaluation
+//                ], 201) : throw new Exception('Terjadi kesalahan server.');
+//        } catch (Exception $exception){
+//            return response([
+//                'message' => $exception->getMessage(),
+//                'result' => null
+//            ], 422);
+//        }
+        $result = collect($request->all('result'));
+        $result = $result->map(function ($value) {
+            return json_decode($value);
+        });
+        $result = collect($result['result']);
+        $result = collect($result->groupBy('name'));
+        $modus = collect($result->filter(function (Collection $groups) {
+            return $groups->count() > 1;
+        })->flatMap(function ($item) {
+            return $item;
+        }));
+        $modusvalue = $modus->pluck('indicator.code')->mode();
+        $modus = collect($modus->first()->indicator);
+        $modus = $modus->replace(['code' => $modusvalue[0]]);
+
+        $other = $result->filter(function (Collection $groups) {
+            return $groups->count() < 2;
+        })->flatMap(function ($item) {
+            return $item;
+        });
+        $result = collect($other->merge([$modus]));
+//        $teacher = Teacher::find($request->teacher);
+//        $feedbacktext = 'Guru mata pelajaran '. $teacher->subject .' a.n. '. $teacher->name .' diharapkan dapat ';
+//        $feedbackarray = $result->map(function ($item){
+//            $feedbackarray = collect([]);
+//            $instrument = new Instrument();
+//            if ($item->indicator->code > 2){
+//                $feedbackarray->merge($instrument->find($item->instrument)->feedback);
+//            }
+//            return $item->instrument;
+//        });
+        $feedbackarray = [];
+        foreach ($result as $item){
+            $feedbackarray = $item;
         }
+        return response([
+            'testing' => $feedbackarray
+        ]);
     }
 
     /**
@@ -67,7 +108,7 @@ class EvaluationController extends Controller
                     'message' => 'Data Penilaian berhasil diperbarui.',
                     'result' => $evaluation
                 ], 201) : throw new Exception('Terjadi kesalahan server.');
-        } catch (Exception $exception){
+        } catch (Exception $exception) {
             return response([
                 'message' => $exception->getMessage(),
                 'result' => null
@@ -86,7 +127,7 @@ class EvaluationController extends Controller
                     'message' => 'Data Penilaian berhasil dihapus',
                     'result' => $evaluation
                 ]) : throw new Exception('Terjadi kesalahan server.');
-        } catch (Exception $exception){
+        } catch (Exception $exception) {
             return response([
                 'message' => $exception->getMessage(),
                 'result' => null

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('sub')->nullable();
             $table->text('desc');
+            $table->text('feedback');
             $table->timestamps();
         });
     }

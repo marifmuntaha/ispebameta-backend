@@ -19,7 +19,9 @@ class InstrumentResource extends JsonResource
                 'id' => $this->id,
                 'aspect' => $this->aspect,
                 'name' => $this->name,
+                'sub' => $this->sub,
                 'desc' => $this->desc,
+                'feedback' => $this->feedback,
                 'indicators' => $this->indicators
             ];
         }

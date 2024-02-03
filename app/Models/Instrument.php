@@ -11,7 +11,9 @@ class Instrument extends Model
     protected $fillable = [
         'aspect',
         'name',
+        'sub',
         'desc',
+        'feedback'
     ];
 
     public function aspects(): object
