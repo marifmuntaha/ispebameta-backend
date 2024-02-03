@@ -6,17 +6,20 @@ use App\Http\Requests\StoreEvaluationRequest;
 use App\Http\Requests\UpdateEvaluationRequest;
 use App\Http\Resources\EvaluationResource;
 use App\Models\Evaluation;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
+use Illuminate\Http\Request;
 
 class EvaluationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $evaluation = new Evaluation();
-
+        $evaluation = $request->teacher ? $evaluation->whereTeacher($request->teacher) : $evaluation;
+        $evaluation = $request->aspect ? $evaluation->whereAspect($request->aspect) : $evaluation;
         return response([
             'message' => null,
             'result' => EvaluationResource::collection($evaluation->get())
@@ -89,5 +92,11 @@ class EvaluationController extends Controller
                 'result' => null
             ], 422);
         }
+    }
+
+    public function print()
+    {
+        $pdf = Pdf::loadView('template');
+        return $pdf->download('testing.pdf');
     }
 }

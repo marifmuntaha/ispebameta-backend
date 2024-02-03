@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('indicators', function (Blueprint $table) {
+        Schema::create('feedbacks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('instrument');
+            $table->unsignedBigInteger('aspect');
             $table->string('code');
             $table->mediumText('desc');
-            $table->mediumText('reference');
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('indicators');
+        Schema::dropIfExists('feedbacks');
     }
 };

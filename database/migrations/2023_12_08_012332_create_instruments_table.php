@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('aspect');
             $table->string('name');
+            $table->string('sub')->nullable();
             $table->text('desc');
             $table->timestamps();
         });

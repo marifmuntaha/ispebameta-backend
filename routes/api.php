@@ -28,3 +28,4 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::apiResource('/indicator', IndicatorController::class);
     Route::apiResource('/teacher', TeacherController::class);
 });
+
