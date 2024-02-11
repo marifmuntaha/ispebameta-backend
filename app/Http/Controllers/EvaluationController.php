@@ -46,43 +46,81 @@ class EvaluationController extends Controller
 //                'result' => null
 //            ], 422);
 //        }
-        $result = collect($request->all('result'));
-        $result = $result->map(function ($value) {
-            return json_decode($value);
+        $sentence = [
+            '* Melakukan kegiatan diseminasi dan berbagi dalam pelatihan ',
+            '* Melaksanakan Pengembangan profesi melalui beragam bentuk kegiatan MGMP, Diskusi dengan materi : ',
+            '* Mengikuti kegiatan pembimbingan pelatihan untuk meningkatkan pemahaman ',
+        ];
+        $result = collect($request->result);
+        $result = $result->flatMap(function ($value) {
+            return collect(json_decode($value));
         });
-        $result = collect($result['result']);
-        $result = collect($result->groupBy('name'));
-        $modus = collect($result->filter(function (Collection $groups) {
+        $result = $result->groupBy('name')->collect();
+        $modusData = $result->filter(function (Collection $groups) {
             return $groups->count() > 1;
         })->flatMap(function ($item) {
             return $item;
-        }));
-        $modusvalue = $modus->pluck('indicator.code')->mode();
-        $modus = collect($modus->first()->indicator);
-        $modus = $modus->replace(['code' => $modusvalue[0]]);
-
-        $other = $result->filter(function (Collection $groups) {
+        })->collect();
+        $modusValue = $modusData->pluck('indicator.value')->mode();
+        $modusData = collect([$modusData->first()]);
+        $modusData = $modusData->map(function ($value) use ($modusValue) {
+            $value->indicator->code = $modusValue[0];
+            return $value;
+        });
+        $otherData = $result->filter(function (Collection $groups) {
             return $groups->count() < 2;
         })->flatMap(function ($item) {
             return $item;
-        });
-        $result = collect($other->merge([$modus]));
-//        $teacher = Teacher::find($request->teacher);
-//        $feedbacktext = 'Guru mata pelajaran '. $teacher->subject .' a.n. '. $teacher->name .' diharapkan dapat ';
-//        $feedbackarray = $result->map(function ($item){
-//            $feedbackarray = collect([]);
-//            $instrument = new Instrument();
-//            if ($item->indicator->code > 2){
-//                $feedbackarray->merge($instrument->find($item->instrument)->feedback);
-//            }
-//            return $item->instrument;
-//        });
-        $feedbackarray = [];
-        foreach ($result as $item){
-            $feedbackarray = $item;
+        })->collect();
+        $otherData = $otherData->merge($modusData)->sortBy('name')->flatten(1)->collect();
+        $teacher = Teacher::find($request->teacher);
+        $feedback = '';
+        $feedbackText = 'Guru mata pelajaran ' . $teacher->subject . ' a.n. ' . $teacher->name . ' diharapkan dapat ';
+        $feedbackCount = 0;
+        for ($i = 0; $i < count($otherData); $i++) {
+            $instrument = new Instrument();
+            if ($otherData[$i]->indicator->value > 2) {
+                $feedback .= $instrument->find($otherData[$i]->instrument)->feedback . ', ';
+                $otherData = $otherData->forget($i)->flatten(1)->collect();
+            }
+            else {
+                $feedbackCount++;
+            }
         }
+        if ($feedbackCount != 6){
+            $feedbackText .= $sentence[0] . $feedback;
+        }
+        $feedbackCount = 0;
+        for ($j = 0; $j < count($otherData); $j++) {
+            $instrument = new Instrument();
+            if ($otherData[$j]->indicator->value == 2) {
+                $feedback .= $instrument->find($otherData[$j]->instrument)->feedback . ', ';
+                $otherData = $otherData->forget($j)->flatten(1)->collect();
+            }
+            else {
+                $feedbackCount++;
+            }
+        }
+        if ($feedbackCount != 6){
+            $feedbackText .= $sentence[1] . $feedback;
+        }
+        $feedbackCount = 0;
+//        for ($k = 0; $k < count($otherData); $k++) {
+//            $instrument = new Instrument();
+//            if ($otherData[$k]->indicator->value < 2) {
+//                $feedback .= $instrument->find($otherData[$k]->instrument)->feedback . ', ';
+//                $otherData = array_slice($otherData, $i);
+//            }
+//            else {
+//                $feedbackCount++;
+//            }
+//        }
+//        if ($feedbackCount != 6){
+//            $feedbackText .= $sentence[2] . $feedback;
+//        }
+        $feedbackText = substr($feedbackText, 0, -2);
         return response([
-            'testing' => $feedbackarray
+            'testing' => $otherData
         ]);
     }
 

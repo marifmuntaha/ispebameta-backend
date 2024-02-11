@@ -11,6 +11,7 @@ class Indicator extends Model
     protected $fillable = [
         'instrument',
         'code',
+        'value',
         'desc',
         'reference'
     ];

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('instrument');
             $table->string('code');
+            $table->integer('value');
             $table->mediumText('desc');
             $table->mediumText('reference');
             $table->timestamps();

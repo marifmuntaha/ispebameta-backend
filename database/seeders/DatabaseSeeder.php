@@ -12,8 +12,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(AspectSeeder::class);
-        $this->call(InstrumentSeeder::class);
+//        $this->call(AspectSeeder::class);
+//        $this->call(InstrumentSeeder::class);
         $this->call(IndicatorSeeder::class);
     }
 }
