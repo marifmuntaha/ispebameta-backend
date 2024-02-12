@@ -13,7 +13,8 @@ class Evaluation extends Model
         'teacher',
         'aspect',
         'finish',
-        'result'
+        'result',
+        'feedback'
     ];
 
     public function teacher(): object

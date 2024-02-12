@@ -34,21 +34,9 @@ class EvaluationController extends Controller
      */
     public function store(StoreEvaluationRequest $request)
     {
-//        try {
-//            return ($evaluation = Evaluation::create($request->all())) ?
-//                response([
-//                    'message' => 'Data Penilaian berhasil disimpan.',
-//                    'result' => $evaluation
-//                ], 201) : throw new Exception('Terjadi kesalahan server.');
-//        } catch (Exception $exception){
-//            return response([
-//                'message' => $exception->getMessage(),
-//                'result' => null
-//            ], 422);
-//        }
         $sentence = [
             '* Melakukan kegiatan diseminasi dan berbagi dalam pelatihan ',
-            '* Melaksanakan Pengembangan profesi melalui beragam bentuk kegiatan MGMP, Diskusi dengan materi : ',
+            '* Melaksanakan Pengembangan profesi melalui beragam bentuk kegiatan MGMP, Diskusi dengan materi: ',
             '* Mengikuti kegiatan pembimbingan pelatihan untuk meningkatkan pemahaman ',
         ];
         $result = collect($request->result);
@@ -81,47 +69,59 @@ class EvaluationController extends Controller
             $instrument = new Instrument();
             if ($otherData[$i]->indicator->value > 2) {
                 $feedback .= $instrument->find($otherData[$i]->instrument)->feedback . ', ';
-                $otherData = $otherData->forget($i)->flatten(1)->collect();
-            }
-            else {
+            } else {
                 $feedbackCount++;
             }
         }
-        if ($feedbackCount != 6){
+        if ($feedbackCount != 6) {
             $feedbackText .= $sentence[0] . $feedback;
         }
+        $otherData = $otherData->filter(function ($item) {
+            return $item->indicator->value <= 2;
+        })->collect();
         $feedbackCount = 0;
+        $feedback = '';
         for ($j = 0; $j < count($otherData); $j++) {
             $instrument = new Instrument();
             if ($otherData[$j]->indicator->value == 2) {
                 $feedback .= $instrument->find($otherData[$j]->instrument)->feedback . ', ';
-                $otherData = $otherData->forget($j)->flatten(1)->collect();
-            }
-            else {
+            } else {
                 $feedbackCount++;
             }
         }
-        if ($feedbackCount != 6){
+        if ($feedbackCount != 6) {
             $feedbackText .= $sentence[1] . $feedback;
         }
+        $otherData = $otherData->filter(function ($item) {
+            return $item->indicator->value != 2 && $item->indicator->value < 2;
+        })->collect();
         $feedbackCount = 0;
-//        for ($k = 0; $k < count($otherData); $k++) {
-//            $instrument = new Instrument();
-//            if ($otherData[$k]->indicator->value < 2) {
-//                $feedback .= $instrument->find($otherData[$k]->instrument)->feedback . ', ';
-//                $otherData = array_slice($otherData, $i);
-//            }
-//            else {
-//                $feedbackCount++;
-//            }
-//        }
-//        if ($feedbackCount != 6){
-//            $feedbackText .= $sentence[2] . $feedback;
-//        }
+        $feedback = '';
+        for ($k = 0; $k < count($otherData); $k++) {
+            $instrument = new Instrument();
+            if ($otherData[$k]->indicator->value < 2) {
+                $feedback .= $instrument->find($otherData[$k]->instrument)->feedback . ', ';
+            } else {
+                $feedbackCount++;
+            }
+        }
+        if ($feedbackCount != 6) {
+            $feedbackText .= $sentence[2] . $feedback;
+        }
         $feedbackText = substr($feedbackText, 0, -2);
-        return response([
-            'testing' => $otherData
-        ]);
+        $request->request->add(['feedback' => $feedbackText]);
+        try {
+            return ($evaluation = Evaluation::create($request->all())) ?
+                response([
+                    'message' => 'Data Penilaian berhasil disimpan.',
+                    'result' => $evaluation
+                ], 201) : throw new Exception('Terjadi kesalahan server.');
+        } catch (Exception $exception) {
+            return response([
+                'message' => $exception->getMessage(),
+                'result' => null
+            ], 422);
+        }
     }
 
     /**
@@ -173,8 +173,9 @@ class EvaluationController extends Controller
         }
     }
 
-    public function print()
+    public function print(Request $request)
     {
+
         $pdf = Pdf::loadView('template');
         return $pdf->download('testing.pdf');
     }

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('aspect');
             $table->boolean('finish')->default(0);
             $table->json('result');
+            $table->mediumText('feedback');
             $table->timestamps();
         });
     }
