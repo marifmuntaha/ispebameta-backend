@@ -18,8 +18,13 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', [1, 2])->comment('1. Administrator, 2. Member');
             $table->string('nip')->nullable();
-            $table->string('institution');
             $table->string('position');
+            $table->string('institution');
+            $table->string('address')->nullable();
+            $table->string('nsm')->nullable();
+            $table->string('npsn')->nullable();
+            $table->string('foundation')->nullable();
+            $table->string('logo')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

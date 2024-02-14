@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreEvaluationRequest;
 use App\Http\Requests\UpdateEvaluationRequest;
 use App\Http\Resources\EvaluationResource;
+use App\Models\Aspect;
 use App\Models\Evaluation;
 use App\Models\Instrument;
 use App\Models\Teacher;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -49,18 +52,20 @@ class EvaluationController extends Controller
         })->flatMap(function ($item) {
             return $item;
         })->collect();
-        $modusValue = $modusData->pluck('indicator.value')->mode();
-        $modusData = collect([$modusData->first()]);
-        $modusData = $modusData->map(function ($value) use ($modusValue) {
-            $value->indicator->code = $modusValue[0];
-            return $value;
-        });
         $otherData = $result->filter(function (Collection $groups) {
             return $groups->count() < 2;
         })->flatMap(function ($item) {
             return $item;
         })->collect();
-        $otherData = $otherData->merge($modusData)->sortBy('name')->flatten(1)->collect();
+        if ($modusData->count() > 1){
+            $modusValue = $modusData->pluck('indicator.value')->mode();
+            $modusData = collect([$modusData->first()]);
+            $modusData = $modusData->map(function ($value) use ($modusValue) {
+                $value->indicator->code = $modusValue[0];
+                return $value;
+            });
+            $otherData = $otherData->merge($modusData)->sortBy('name')->flatten(1)->collect();
+        }
         $teacher = Teacher::find($request->teacher);
         $feedback = '';
         $feedbackText = 'Guru mata pelajaran ' . $teacher->subject . ' a.n. ' . $teacher->name . ' diharapkan dapat ';
@@ -76,9 +81,9 @@ class EvaluationController extends Controller
         if ($feedbackCount != 6) {
             $feedbackText .= $sentence[0] . $feedback;
         }
-        $otherData = $otherData->filter(function ($item) {
+        $otherData = collect($otherData->filter(function ($item) {
             return $item->indicator->value <= 2;
-        })->collect();
+        })->values()->all());
         $feedbackCount = 0;
         $feedback = '';
         for ($j = 0; $j < count($otherData); $j++) {
@@ -92,9 +97,9 @@ class EvaluationController extends Controller
         if ($feedbackCount != 6) {
             $feedbackText .= $sentence[1] . $feedback;
         }
-        $otherData = $otherData->filter(function ($item) {
+        $otherData = collect($otherData->filter(function ($item) {
             return $item->indicator->value != 2 && $item->indicator->value < 2;
-        })->collect();
+        })->values()->all());
         $feedbackCount = 0;
         $feedback = '';
         for ($k = 0; $k < count($otherData); $k++) {
@@ -119,7 +124,7 @@ class EvaluationController extends Controller
         } catch (Exception $exception) {
             return response([
                 'message' => $exception->getMessage(),
-                'result' => null
+                'result' => $otherData
             ], 422);
         }
     }
@@ -175,8 +180,26 @@ class EvaluationController extends Controller
 
     public function print(Request $request)
     {
+        $user = User::find($request->user);
+        $aspect = Aspect::find($request->aspect);
+        $teacher = Teacher::find($request->teacher);
+        $result = json_decode($request->result);
+        $feedback = $request->feedback;
+        $date = Carbon::parse($request->created_at)->translatedFormat('d F Y');
+        $data = [
+            'user' => $user,
+            'aspect' => $aspect,
+            'teacher' => $teacher,
+            'result' => $result,
+            'feedback' => $feedback,
+            'date' => $date
+        ];
 
-        $pdf = Pdf::loadView('template');
-        return $pdf->download('testing.pdf');
+        $pdf = Pdf::loadView('template', $data);
+        $pdf->save('storage/download/supervisi-'. $teacher->name .'pdf');
+        return response([
+            'message' => 'Hasil supervisi berhasil diunduh.',
+            'result' => asset('storage/download/supervisi-'. $teacher->name .'pdf')
+        ]);
     }
 }

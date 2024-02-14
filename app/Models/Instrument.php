@@ -13,6 +13,7 @@ class Instrument extends Model
         'name',
         'sub',
         'desc',
+        'subdesc',
         'feedback'
     ];
 
