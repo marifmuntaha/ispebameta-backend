@@ -8,6 +8,7 @@ use App\Http\Resources\EvaluationResource;
 use App\Models\Evaluation;
 use App\Models\Instrument;
 use App\Models\Teacher;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
@@ -175,8 +176,17 @@ class EvaluationController extends Controller
 
     public function print(Request $request)
     {
-
-        $pdf = Pdf::loadView('template');
-        return $pdf->download('testing.pdf');
+        $user = User::find($request->user);
+        $teacher = Teacher::find($request->teacher);
+        $result = json_decode($request->result);
+        $feedback = $request->feedback;
+        $data = [
+            'user' => $user,
+            'teacher' => $teacher,
+            'result' => $result,
+            'feedback' => $feedback
+        ];
+        $pdf = Pdf::loadView('template', $data);
+        return $pdf->download('supervisi-'. $teacher->name .'.pdf');
     }
 }

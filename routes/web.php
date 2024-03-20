@@ -17,5 +17,3 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::post('/evaluation/print', [EvaluationController::class, 'print']);
-Route::view('/evaluation/test', 'template');

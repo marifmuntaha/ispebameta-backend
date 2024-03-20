@@ -17,7 +17,7 @@ class Evaluation extends Model
         'feedback'
     ];
 
-    public function teacher(): object
+    public function teachers(): object
     {
         return $this->hasOne(
             Teacher::class,

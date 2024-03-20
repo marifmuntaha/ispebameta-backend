@@ -27,5 +27,6 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::apiResource('/instrument', InstrumentController::class);
     Route::apiResource('/indicator', IndicatorController::class);
     Route::apiResource('/teacher', TeacherController::class);
+    Route::post('/evaluation/print', [EvaluationController::class, 'print']);
 });
 
