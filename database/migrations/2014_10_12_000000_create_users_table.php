@@ -20,11 +20,10 @@ return new class extends Migration
             $table->string('nip')->nullable();
             $table->string('position');
             $table->string('institution');
+            $table->string('address')->nullable();
             $table->string('nsm')->nullable();
             $table->string('npsn')->nullable();
-            $table->string('institution_address')->nullable();
             $table->string('foundation')->nullable();
-            $table->string('year')->nullable();
             $table->string('logo')->nullable();
             $table->rememberToken();
             $table->timestamps();

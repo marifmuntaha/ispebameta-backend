@@ -23,8 +23,13 @@ class User extends Authenticatable
         'password',
         'role',
         'nip',
+        'position',
         'institution',
-        'position'
+        'address',
+        'nsm',
+        'npsn',
+        'foundation',
+        'logo'
     ];
 
     /**

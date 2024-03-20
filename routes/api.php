@@ -6,6 +6,7 @@ use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\InstrumentController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 /*
@@ -27,6 +28,7 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::apiResource('/instrument', InstrumentController::class);
     Route::apiResource('/indicator', IndicatorController::class);
     Route::apiResource('/teacher', TeacherController::class);
+    Route::apiResource('/user', UserController::class);
     Route::post('/evaluation/print', [EvaluationController::class, 'print']);
 });
 
