@@ -37,7 +37,9 @@
 <div>
     <table class="table-header">
         <tr>
-            <td style="width: auto"><img src="{{public_path('storage/images/'. $user->logo)}}" alt="logo" width="70px"/> </td>
+            @if($user->logo)
+                <td style="width: auto"><img src="{{public_path('storage/images/'. $user->logo)}}" alt="logo" width="70px"/> </td>
+            @endif
             <td style="text-align: center; width: 100%">
                 <span style="font-size: 20px; font-weight: bold">{{$user->foundation}}</span>
                 <br/>
