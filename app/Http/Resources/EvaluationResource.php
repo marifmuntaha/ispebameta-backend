@@ -14,20 +14,22 @@ class EvaluationResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $resource = [
+            'id' => $this->id,
+            'user' => $this->user,
+            'teacher' => $this->teacher,
+            'aspect' => $this->aspect,
+            'finish' => $this->finish,
+            'result' => $this->result,
+            'feedback' => $this->feedback,
+        ];
         if ($request->has('withTeacher')){
-            $resource = [
-                'id' => $this->id,
-                'user' => $this->user,
-                'teacher' => $this->teachers,
-                'aspect' => $this->aspect,
-                'finish' => $this->finish,
-                'result' => $this->result,
-                'feedback' => $this->feedback,
-            ];
+            $resource['teacher'] = $this->teachers;
         }
-        else {
-            $resource = parent::toArray($request);
+        if ($request->has('withAspect')){
+            $resource['aspect'] = $this->aspects;
         }
+
         return $resource;
     }
 }

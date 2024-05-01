@@ -25,4 +25,13 @@ class Evaluation extends Model
             'teacher'
         );
     }
+
+    public function aspects(): object
+    {
+        return  $this->hasOne(
+            Aspect::class,
+                'id',
+            'aspect'
+        );
+    }
 }
