@@ -17,12 +17,21 @@ class Evaluation extends Model
         'feedback'
     ];
 
-    public function teacher(): object
+    public function teachers(): object
     {
         return $this->hasOne(
             Teacher::class,
             'id',
             'teacher'
+        );
+    }
+
+    public function aspects(): object
+    {
+        return  $this->hasOne(
+            Aspect::class,
+                'id',
+            'aspect'
         );
     }
 }

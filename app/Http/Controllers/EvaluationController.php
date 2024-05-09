@@ -24,6 +24,7 @@ class EvaluationController extends Controller
     public function index(Request $request)
     {
         $evaluation = new Evaluation();
+        $evaluation = $request->has('user') ? $evaluation->whereUser($request->user) : $evaluation;
         $evaluation = $request->teacher ? $evaluation->whereTeacher($request->teacher) : $evaluation;
         $evaluation = $request->aspect ? $evaluation->whereAspect($request->aspect) : $evaluation;
         return response([
