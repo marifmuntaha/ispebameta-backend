@@ -37,15 +37,15 @@
 <div>
     <table class="table-header">
         <tr>
-            @if($user->logo)
-                <td style="width: auto"><img src="{{public_path('storage/images/'. $user->logo)}}" alt="logo" width="70px"/> </td>
-            @endif
+{{--            @if($user->logo)--}}
+                <td style="width: auto"><img src="{{public_path('storage/images/logo.png')}}" alt="logo" width="70px"/> </td>
+{{--            @endif--}}
             <td style="text-align: center; width: 100%">
-                <span style="font-size: 20px; font-weight: bold">{{$user->foundation}}</span>
+                <span style="font-size: 14px; font-weight: bold">KEMENTRIAN AGAMA REPUBLIK INDONESIA</span>
                 <br/>
                 <span style="font-size: 20px; font-weight: bold">{{$user->institution}}</span>
                 <br/>
-                <span>{{$user->address}}</span>
+                <span style="font-style: italic">{{$user->address}}</span>
             </td>
         </tr>
     </table>
@@ -66,7 +66,7 @@
         <tr>
             <td style="width: auto">Mata Pelajaran</td>
             <td style="width: auto">:</td>
-            <td style="width: auto">{{$teacher->subject}}</td>
+            <td style="width: auto">{{$teacher->subjects->name}}</td>
         </tr>
         <tr>
             <td style="width: auto">Nama Madrasah</td>

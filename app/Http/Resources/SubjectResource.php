@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TeacherResource extends JsonResource
+class SubjectResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,15 +16,16 @@ class TeacherResource extends JsonResource
     {
         $resource = [
             'id' => $this->id,
-            'user' => $this->user,
             'name' => $this->name,
-            'nip' => $this->nip,
-            'subject' => $this->subject,
-            'phone' => $this->phone
+            'code' => $this->code,
+            'description' => $this->description
         ];
-        if ($request->has('with')){
-            if ($request->with == 'subject'){
-                $resource['subject'] = $this->subjects;
+        if ($request->has('type')) {
+            if ($request->type == 'select'){
+                $resource = [
+                    'value' => $this->id,
+                    'label' => $this->name,
+                ];
             }
         }
         return $resource;

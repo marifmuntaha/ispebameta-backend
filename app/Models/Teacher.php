@@ -24,4 +24,13 @@ class Teacher extends Model
             'user'
         );
     }
+
+    public function subjects(): object
+    {
+        return $this->hasOne(
+            Subject::class,
+            'id',
+            'subject'
+        );
+    }
 }
